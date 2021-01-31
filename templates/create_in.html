@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block customcss %}
+
+{% endblock customcss %}
+
+{% block content %}
+{% load bootstrap4 %}
+{% bootstrap_javascript jquery='full' %}
+{{ form.media }}
+{% if user.is_authenticated %}
+<div class="container-fluid">
+    <p>こんにちは{{ user.username }}さん</p>
+    <h3>登録画面</h3>
+    <div class="card mt-2">
+        <h5 class="card-header">収入登録</h5>
+    <div class="card-body">
+    <div class="row">
+        <div class="col-sm-8">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">登録</button>
+        </form>
+        </div>
+    </div>
+    </div>
+    </div>
+{% else %}
+please login
+{% endif %}
+</div>
+{% endblock content %}

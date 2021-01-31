@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block customcss %}
+{% load bootstrap4 %}
+{% bootstrap_javascript jquery='full' %}
+{{ form.media }}
+{% endblock customcss %}
+
+{% block content %}
+<div class="container-fluid">
+    <h3>編集</h3>
+{% if user.is_authenticated %}
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="保存">
+</form>
+{% else %}
+please login
+{% endif %}
+<a href="{{ request.META.HTTP_REFERER }}">戻る</a>
+</div>
+{% endblock content %}

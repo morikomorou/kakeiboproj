@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block customcss %}
+{% endblock customcss %}
+
+{% block header %}
+{% endblock header %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+{% if user.is_authenticated %}
+<div class="container-fluid">
+<p>こんにちは{{ user.username }}さん</p>
+
+<h3>収支履歴</h3>
+<div class="card mt-2">
+    <h5 class="card-header">収支履歴</h5>
+    <div class="card-body">
+        <div class="chart_container" style="position: relative; height: 300px;">
+            <canvas id='TotalChart'></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-2">
+    <h5 class="card-header">支出履歴</h5>
+    <div class="card-body">
+        <div class="chart_container" style="position: relative; height: 300px;">
+            <canvas id='OutChart'></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-2">
+    <h5 class="card-header">収入履歴</h5>
+    <div class="card-body">
+        <div class="chart_container" style="position: relative; height: 300px;">
+            <canvas id='InChart'></canvas>
+        </div>
+    </div>
+</div>
+
+{% else %}
+please login
+{% endif %}
+<script>
+    var ctx = document.getElementById('TotalChart').getContext('2d');
+    var x_labels = [
+        {% for month in month_list %}
+        '{{ month }}',
+        {% endfor %}
+        ];
+    
+    var bg_color = "rgba(54,164,235,0.8)";
+
+    var myChart = new Chart(ctx, {
+      type: 'line',
+
+      data: {
+        labels: x_labels,
+        datasets: [
+          {
+          label: '収支',
+          data:  {{ total }},
+          borderColor: bg_color,
+          fill: false,
+          },
+      ] },
+      options: {
+        maintainAspectRatio: false, //これを追加
+          tooltips:{
+            mode:'label' //マウスオーバー時に表示されるtooltip
+          },
+}
+    });
+</script>
+
+
+<script>
+    var ctx = document.getElementById('OutChart').getContext('2d');
+    var x_labels = [
+        {% for month in month_list %}
+        '{{ month }}',
+        {% endfor %}
+        ];
+    
+    var bg_color = ["rgba(255,241,15,0.8)","rgba(54,164,235,0.8)",
+          "rgba(0,255,65,0.8)","rgba(214,216,165,0.8)","rgba(255,94,25,0.8)",
+          "rgba(84,77,203,0.8)","rgba(140,140,140,0.8)","rgba(171,255,127,0.8)",
+          "rgba(50,204,18,0.8)","rgba(234,210,173,0.8)"];
+
+    var myChart = new Chart(ctx, {
+      type: 'bar',
+
+      data: {
+        labels: x_labels,
+        datasets: [
+          {% for k, v in sum_dict.out.items %}
+          {
+          label: '{{k}}',
+          data:  {{v}},
+          backgroundColor: bg_color[{{ forloop.counter }} - 1],
+          borderColor: bg_color[{{ forloop.counter }} - 1],
+          },
+          {% endfor %}
+      ] },
+      options: {
+        maintainAspectRatio: false, //これを追加
+        scales: {
+              xAxes: [{
+                    stacked: true, //積み上げ棒グラフにする設定
+                    categoryPercentage:0.4 //棒グラフの太さ
+              }],
+              yAxes: [{
+                    stacked: true //積み上げ棒グラフにする設定
+              }]
+          },
+          tooltips:{
+            mode:'label' //マウスオーバー時に表示されるtooltip
+          },
+}
+    });
+</script>
+
+<script>
+    var ctx = document.getElementById('InChart').getContext('2d');
+    var x_labels = [
+        {% for month in month_list %}
+        '{{ month }}',
+        {% endfor %}
+        ];
+    
+    var bg_color = ["rgba(255,241,15,0.8)","rgba(54,164,235,0.8)",
+          "rgba(0,255,65,0.8)","rgba(214,216,165,0.8)","rgba(255,94,25,0.8)",
+          "rgba(84,77,203,0.8)","rgba(140,140,140,0.8)","rgba(171,255,127,0.8)",
+          "rgba(50,204,18,0.8)","rgba(234,210,173,0.8)"];
+
+    var myChart = new Chart(ctx, {
+      type: 'line',
+
+      data: {
+        labels: x_labels,
+        datasets: [
+          {% for k, v in sum_dict.in.items %}
+          {
+          label: '{{k}}',
+          data:  {{v}},
+          borderColor: bg_color[{{ forloop.counter }}],
+          fill: false,
+          },
+          {% endfor %}
+      ] },
+      options: {
+        maintainAspectRatio: false, //これを追加
+          tooltips:{
+            mode:'label' //マウスオーバー時に表示されるtooltip
+          },
+}
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+{% endblock content %}
